@@ -24,7 +24,6 @@ app.post("/api/concurso/identificar", async (req, res) => {
     if (!query || typeof query !== "string") {
       return res.status(400).json({ error: "Termo de busca do concurso é obrigatório." });
     }
-
     const result = await identificarConcurso(query);
     res.json(result);
   } catch (error: any) {
@@ -42,7 +41,6 @@ app.post("/api/concurso/gerar-plano", async (req, res) => {
     if (!concurso) {
       return res.status(400).json({ error: "Nome do concurso é obrigatório." });
     }
-
     const result = await gerarPlanoEstudos({
       concurso,
       cargo,
@@ -52,7 +50,6 @@ app.post("/api/concurso/gerar-plano", async (req, res) => {
       horasSemana,
       nivelAtual,
     });
-
     res.json(result);
   } catch (error: any) {
     console.error("Erro ao gerar plano de estudos:", error);
@@ -98,7 +95,8 @@ app.post("/api/concurso/mentor-chat", async (req, res) => {
   }
 });
 
-// Setup Vite middleware / Static serving
+// Setup Vite middleware / Static serving — só roda o listen fora da Vercel
+// (na Vercel, o export default abaixo é usado como função serverless)
 async function startServer() {
   if (process.env.NODE_ENV !== "production") {
     const vite = await createViteServer({
@@ -106,7 +104,7 @@ async function startServer() {
       appType: "spa",
     });
     app.use(vite.middlewares);
-  } else {
+  } else if (!process.env.VERCEL) {
     const distPath = path.join(process.cwd(), "dist");
     app.use(express.static(distPath));
     app.get("*", (req, res) => {
@@ -114,9 +112,13 @@ async function startServer() {
     });
   }
 
-  app.listen(PORT, "0.0.0.0", () => {
-    console.log(`ConcursoMentor AI Server running at http://localhost:${PORT}`);
-  });
+  if (!process.env.VERCEL) {
+    app.listen(PORT, "0.0.0.0", () => {
+      console.log(`ConcursoMentor AI Server running at http://localhost:${PORT}`);
+    });
+  }
 }
 
 startServer();
+
+export default app;
