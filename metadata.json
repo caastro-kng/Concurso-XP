@@ -1,0 +1,6 @@
+{
+  "name": "ConcursoMentor AI - Plano de Estudos",
+  "description": "Motor inteligente de estudos para concursos públicos com busca de editais em tempo real com grounding, matérias ordenadas por peso e videoaulas do YouTube.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
