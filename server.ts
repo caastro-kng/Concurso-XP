@@ -1,7 +1,6 @@
 import express from "express";
 import path from "path";
 import dotenv from "dotenv";
-import { createServer as createViteServer } from "vite";
 import {
   identificarConcurso,
   gerarPlanoEstudos,
@@ -98,13 +97,17 @@ app.post("/api/concurso/mentor-chat", async (req, res) => {
 // Setup Vite middleware / Static serving — só roda o listen fora da Vercel
 // (na Vercel, o export default abaixo é usado como função serverless)
 async function startServer() {
-  if (process.env.NODE_ENV !== "production") {
+  if (process.env.VERCEL) {
+    // Na Vercel: nada de Vite nem servir estático aqui, o build estático
+    // já é servido separadamente pelo @vercel/static-build.
+  } else if (process.env.NODE_ENV !== "production") {
+    const { createServer: createViteServer } = await import("vite");
     const vite = await createViteServer({
       server: { middlewareMode: true },
       appType: "spa",
     });
     app.use(vite.middlewares);
-  } else if (!process.env.VERCEL) {
+  } else {
     const distPath = path.join(process.cwd(), "dist");
     app.use(express.static(distPath));
     app.get("*", (req, res) => {
